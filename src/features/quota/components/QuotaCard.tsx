@@ -23,6 +23,7 @@ import { bindQuotaClasses } from '../types';
 import { QUOTA_ADAPTERS, type QuotaCardState } from '../providers';
 import { isQuotaRefreshDisabled, type QuotaFileEntry } from '../logic';
 import { useClaudeResetGrants } from '../providers/claude/ClaudeResetGrants';
+import { maskEmails } from '../ledgerModel';
 import bodyStyles from './QuotaBody.module.scss';
 import styles from './QuotaCard.module.scss';
 
@@ -35,6 +36,8 @@ export type QuotaCardProps = {
   resolvedTheme: ResolvedTheme;
   canRefresh: boolean;
   resetting: boolean;
+  /** False masks emails in the displayed credential name. */
+  showEmails?: boolean;
   /** 首屏级联入场延迟；null = 不入场（切 tab / 翻页 / 刷新新挂载的卡片）。 */
   entranceDelayMs?: number | null;
   onRefresh: () => void;
@@ -48,6 +51,7 @@ export function QuotaCard(props: QuotaCardProps) {
     resolvedTheme,
     canRefresh,
     resetting,
+    showEmails = true,
     entranceDelayMs,
     onRefresh,
     onReset,
@@ -55,7 +59,8 @@ export function QuotaCard(props: QuotaCardProps) {
   const { t } = useTranslation();
   const adapter = QUOTA_ADAPTERS[entry.type];
   const file = entry.file;
-  const displayName = getQuotaDisplayName(file);
+  const rawDisplayName = getQuotaDisplayName(file);
+  const displayName = showEmails ? rawDisplayName : maskEmails(rawDisplayName, `${entry.type}-`);
 
   // 挂载时捕获一次延迟：后续 props 变 null 不影响本卡（React 19 禁渲染期读 ref）
   const [mountEntranceDelayMs] = useState<number | null>(entranceDelayMs ?? null);

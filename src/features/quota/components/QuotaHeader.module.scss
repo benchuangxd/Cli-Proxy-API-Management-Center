@@ -115,7 +115,40 @@
   }
 }
 
+/* Outlined pill for view toggles next to the primary action. */
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-primary);
+  border-radius: $radius-full;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
+    border-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
+    background-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
+  .secondaryAction:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
   .primaryAction:hover:not(:disabled) {
     transform: translateY(-1px);
     background: color-mix(in srgb, var(--text-primary) 86%, var(--bg-secondary));
@@ -145,8 +178,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primaryAction {
+  .primaryAction,
+  .secondaryAction {
     transition: none;
+  }
+
+  .secondaryAction:active {
+    transform: none;
   }
 
   .primaryAction:active:not(:disabled) {

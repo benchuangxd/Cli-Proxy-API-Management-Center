@@ -142,9 +142,15 @@
   }
 }
 
+/* The view picker in the tabs row shares the sort control's quiet styling. */
+.view {
+  @extend .sort;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .clearSearch:hover,
-  .sort button[aria-haspopup='listbox']:hover {
+  .sort button[aria-haspopup='listbox']:hover,
+  .view button[aria-haspopup='listbox']:hover {
     background: var(--bg-tertiary);
     color: var(--text-primary);
   }
@@ -167,7 +173,8 @@
     height: 36px;
   }
 
-  .sort button[aria-haspopup='listbox'] {
+  .sort button[aria-haspopup='listbox'],
+  .view button[aria-haspopup='listbox'] {
     height: 40px;
   }
 }
