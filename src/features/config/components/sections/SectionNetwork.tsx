@@ -143,6 +143,10 @@ export function SectionNetwork({
                     value: 'fill-first',
                     label: t('config_management.visual.sections.network.strategy_fill_first'),
                   },
+                  {
+                    value: 'reset-first',
+                    label: t('config_management.visual.sections.network.strategy_reset_first'),
+                  },
                 ]}
                 id={`${routingStrategyLabelId}-select`}
                 disabled={disabled}

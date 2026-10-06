@@ -110,8 +110,16 @@ export function useClaudeResetGrants(
       },
     });
   };
+  // Soonest expiry among grants that still have resets left.
+  const expiresAtMs =
+    status?.grants.reduce<number | null>((soonest, grant) => {
+      const endsMs = grant.endsAt ? Date.parse(grant.endsAt) : NaN;
+      if (grant.resetsLeft <= 0 || !Number.isFinite(endsMs) || endsMs <= now) return soonest;
+      return soonest === null || endsMs < soonest ? endsMs : soonest;
+    }, null) ?? null;
   return {
     count: status?.grants.reduce((sum, grant) => sum + grant.resetsLeft, 0) ?? null,
+    expiresAtMs,
     busy,
     blocked,
     confirm,

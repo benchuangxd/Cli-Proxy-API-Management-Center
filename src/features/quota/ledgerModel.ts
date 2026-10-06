@@ -94,6 +94,7 @@ export function buildLedgerWindows(provider: QuotaProviderType, quota: unknown):
           usagePercent?: number | null;
           resetAtMs?: number | null;
           periodHours?: number | null;
+          productUsage?: { product: string; usagePercent: number | null }[];
         } | null;
       }
     ).billing;
@@ -108,6 +109,16 @@ export function buildLedgerWindows(provider: QuotaProviderType, quota: unknown):
         resetAtMs: finiteOrNull(billing.resetAtMs),
         periodHours: finiteOrNull(billing.periodHours) ?? 24 * 7,
       },
+      // Per-product usage shares the weekly period but reports no reset of its own.
+      ...(billing.productUsage ?? []).map((item) => ({
+        id: `product-${item.product}`,
+        label: item.product,
+        labelKey: 'xai_quota.product_usage',
+        labelParams: { product: item.product },
+        remaining: remainingFromUsed(item.usagePercent),
+        resetAtMs: null,
+        periodHours: null,
+      })),
     ];
   }
 
@@ -198,6 +209,20 @@ export function buildLedgerWindows(provider: QuotaProviderType, quota: unknown):
   }
 
   return [];
+}
+
+/**
+ * When an exhausted credential becomes usable again: the latest upcoming reset
+ * among its windows with nothing left. Null when no window is exhausted.
+ */
+export function exhaustedUntilMs(windows: readonly LedgerWindow[], nowMs: number): number | null {
+  let until: number | null = null;
+  windows.forEach((window) => {
+    if (window.remaining === null || window.remaining > 0) return;
+    const reset = window.resetAtMs;
+    if (reset !== null && reset > nowMs && (until === null || reset > until)) until = reset;
+  });
+  return until;
 }
 
 /* ------------------------------------------------------------------ summary */

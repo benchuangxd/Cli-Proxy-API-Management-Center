@@ -495,8 +495,10 @@ export function QuotaPage() {
             windowsFor={windowsFor}
             showEmails={showEmails}
             canRefresh={(entry) => canUseActions && !entry.file.disabled}
+            resettingKey={resettingQuotaName}
             now={summaryNow}
             onRefresh={(entry) => void refreshQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
+            onReset={(entry) => resetQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
           />
         ) : (
           <div className={styles.grid}>

@@ -2,9 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import {
   buildLedgerSummary,
   buildLedgerWindows,
+  exhaustedUntilMs,
   maskEmails,
   orderLedgerWindows,
 } from '@/features/quota/ledgerModel';
+import { formatCompactDuration } from '@/features/quota/components/ledgerFormat';
 
 const NOW = Date.UTC(2026, 8, 10, 12, 0, 0);
 const HOUR = 60 * 60 * 1000;
@@ -139,5 +141,50 @@ describe('maskEmails', () => {
     expect(maskEmails('codex-john-doe@gmail.com-pro.json', 'codex-')).toBe(
       'codex-j•••@g•••.com-pro.json'
     );
+  });
+});
+
+describe('ledger reset details', () => {
+  const window = (remaining: number | null, resetAtMs: number | null) => ({
+    id: `w-${remaining}-${resetAtMs}`,
+    label: '',
+    remaining,
+    resetAtMs,
+    periodHours: null,
+  });
+
+  test('exhausted credentials come back when their latest exhausted window resets', () => {
+    expect(
+      exhaustedUntilMs(
+        [window(0, NOW + 2 * HOUR), window(0, NOW + 50 * HOUR), window(40, NOW + 90 * HOUR)],
+        NOW
+      )
+    ).toBe(NOW + 50 * HOUR);
+    expect(exhaustedUntilMs([window(10, NOW + HOUR), window(null, NOW + HOUR)], NOW)).toBeNull();
+    expect(exhaustedUntilMs([window(0, NOW - HOUR)], NOW)).toBeNull();
+  });
+
+  test('countdowns use two units at most', () => {
+    expect(formatCompactDuration(50 * HOUR)).toBe('2d 2h');
+    expect(formatCompactDuration(48 * HOUR)).toBe('2d');
+    expect(formatCompactDuration(3 * HOUR + 5 * 60_000)).toBe('3h 5m');
+    expect(formatCompactDuration(1000)).toBe('1m');
+  });
+
+  test('xAI product usage becomes extra ledger windows', () => {
+    const windows = buildLedgerWindows('xai', {
+      status: 'success',
+      billing: {
+        periodType: 'weekly',
+        usagePercent: 9,
+        resetAtMs: NOW + HOUR,
+        periodHours: 168,
+        productUsage: [{ product: 'GrokBuild', usagePercent: 9 }],
+      },
+    });
+    expect(windows.map((w) => [w.id, w.remaining])).toEqual([
+      ['weekly', 91],
+      ['product-GrokBuild', 91],
+    ]);
   });
 });

@@ -40,7 +40,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr) minmax(150px, 190px) auto;
   align-items: center;
   gap: 12px 24px;
   padding: 14px 0;
@@ -64,8 +64,27 @@
 }
 
 .plan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 5px;
   font-size: 12px;
   color: var(--text-tertiary);
+
+  > * + *::before {
+    content: '·';
+    margin-right: 5px;
+    color: var(--text-tertiary);
+  }
+}
+
+.planName {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Exhausted credential: when it comes back. */
+.backIn {
+  color: var(--danger-color);
 }
 
 /* Fixed-width columns so the same window lines up on every row. */
@@ -81,6 +100,10 @@
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+}
+
+.windowExhausted {
+  opacity: 0.55;
 }
 
 .windowHead {
@@ -153,6 +176,65 @@
 
 .resetAbsolute {
   @include text-ellipsis;
+}
+
+/* Reset allowance: Claude grants, Codex manual resets, xAI credits. */
+.extras {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.extraTitle {
+  color: var(--text-secondary);
+}
+
+.extraLine {
+  font-variant-numeric: tabular-nums;
+  @include text-ellipsis;
+}
+
+.extraValue,
+.extraCount {
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.extraCount {
+  font-size: 14px;
+}
+
+.extraLimit {
+  color: var(--text-tertiary);
+}
+
+.extraMeta {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  @include text-ellipsis;
+
+  strong {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+}
+
+.extraError {
+  font-size: 12px;
+  color: var(--danger-color);
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 2px;
 }
 
 .message,
@@ -243,9 +325,21 @@
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .windows {
+  .windows,
+  .extras {
     grid-column: 1 / -1;
+  }
+
+  .windows {
     grid-row: 2;
+  }
+
+  .extras {
+    grid-row: 3;
+  }
+
+  .extras:empty {
+    display: none;
   }
 }
 
