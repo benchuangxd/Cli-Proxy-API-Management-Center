@@ -40,7 +40,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr) minmax(150px, 190px) auto;
+  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr) minmax(150px, 190px) 300px;
   align-items: center;
   gap: 12px 24px;
   padding: 14px 0;
